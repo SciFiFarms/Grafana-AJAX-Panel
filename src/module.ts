@@ -418,6 +418,9 @@ class AjaxCtrl extends MetricsPanelCtrl {
           case RenderMode.html:
             txt = '<div ng-bind-html="response"></div>';
             break;
+          case RenderMode.trustedHtml:
+            txt = this.$scope.response;
+            break;
           case RenderMode.text:
             txt = '{{ response }}';
             break;
@@ -440,14 +443,22 @@ class AjaxCtrl extends MetricsPanelCtrl {
     if (txt) {
       this.ngtemplate.html(txt);
       this.ngtemplate.css('display', 'block');
-      this.$compile(this.ngtemplate.contents())(this.$scope);
+      if (this.panel.mode != RenderMode.trustedHtml) {
+        this.$compile(this.ngtemplate.contents())(this.$scope);
+      }
     } else {
       this.ngtemplate.css('display', 'none');
     }
 
+    /*
+    this.ngtemplate.html(txt);
+    if (this.panel.mode != RenderMode.trustedHtml) {
+      this.$compile(this.ngtemplate.contents())(this.$scope);
+    }
     if (this.$scope.response) {
       this.render();
     }
+    */
   }
 
   showError(msg: string, err: any) {
@@ -546,7 +557,7 @@ class AjaxCtrl extends MetricsPanelCtrl {
     }
 
     // JSON Node needs to force refresh
-    if (this.panel.mode === RenderMode.json) {
+    if (this.panel.mode == RenderMode.json || this.panel.mode == RenderMode.trustedHtml) {
       this.updateTemplate();
     }
   }
